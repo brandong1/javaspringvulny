@@ -1,0 +1,31 @@
+name: Semgrep
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+      - master
+  schedule:
+    # Weekly full scan on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch: {}  # Manual trigger
+
+jobs:
+  semgrep:
+    name: Semgrep Scan
+    runs-on: ubuntu-latest
+    
+    container:
+      image: semgrep/semgrep
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for diff calculation
+      
+      - name: Run Semgrep
+        run: semgrep ci
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
